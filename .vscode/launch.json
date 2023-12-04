@@ -15,10 +15,10 @@
 		{
 			"type": "lldb",
 			"request": "launch",
-			"name": "Debug",
-			"program": "${workspaceFolder}/day12/target/debug/day12",
+			"name": "Rust: Debug",
+			"program": "${workspaceFolder}/2023/day3/target/debug/day12",
 			"args": [],
-			"cwd": "${workspaceFolder}/day12",
+			"cwd": "${workspaceFolder}/2023/day3",
 			"env": {
 				"RUST_BACKTRACE": "1"
 			},
