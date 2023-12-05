@@ -64,7 +64,6 @@ fn part2(input: &str) -> i64 {
         })
         .collect::<Vec<i64>>();
 
-	println!("got seeds!");
     let mappings = sections
         .map(|section| {
             section
