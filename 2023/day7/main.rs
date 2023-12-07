@@ -134,7 +134,6 @@ impl Hand {
                 _ => panic!("this shouldnt be happening"),
             }
         };
-        println!("{:?}::{:?}", hand, type_);
         Self { hand, bet, type_ }
     }
 }
@@ -199,7 +198,6 @@ impl Hand {
                 _ => panic!("this shouldnt be happening"),
             }
         };
-        println!("{:?}::{:?}", hand, type_);
         Self { hand, bet, type_ }
     }
 }
