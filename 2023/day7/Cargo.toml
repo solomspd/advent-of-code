@@ -1,5 +1,5 @@
 [package]
-name = "day6"
+name = "day7"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 itertools = "0.12.0"
-rayon = "1.8.0"
+lazy_static = "1.4.0"
 
 [[bin]]
-name = "day6"
+name = "day7"
 path = "main.rs"
