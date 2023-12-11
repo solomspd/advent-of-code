@@ -1,7 +1,6 @@
 use core::fmt;
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::ops::Add;
-use std::panic::catch_unwind;
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone)]
 enum Tile {
@@ -83,6 +82,27 @@ impl Tile {
             Tile::Start => None,
         }
     }
+
+    fn is_bend(&self) -> bool {
+        match self {
+            Tile::Vertical => false,
+            Tile::Horizontal => false,
+            Tile::NorthEast => true,
+            Tile::NorthWest => true,
+            Tile::SouthEast => true,
+            Tile::SouthWest => true,
+            Tile::Ground => false,
+            Tile::Start => false,
+        }
+    }
+}
+
+fn is_turn(prev: Tile, cur: Tile) -> bool {
+    match (prev, cur) {
+        (Tile::SouthEast, Tile::SouthWest) => true,
+        (Tile::NorthEast, Tile::NorthWest) => true,
+        _ => false,
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -147,6 +167,9 @@ fn get_path(map: &Vec<Vec<Tile>>) -> Vec<Point> {
     .into_iter()
     {
         let mut dir = init_dir;
+        if start.x == 0 && dir == Direction::West || start.y == 0 && dir == Direction::North {
+            continue;
+        }
         let mut cur = start + dir;
         path.clear();
         path.push(start);
@@ -235,32 +258,55 @@ fn part2(input: &str) -> u32 {
         .lines()
         .map(|line| line.chars().map(|c| Tile::from(c)).collect::<Vec<_>>())
         .collect::<Vec<_>>();
+
     let path = get_path(&map);
-    let border = path.into_iter().collect::<HashSet<_>>();
+    let border = path
+        .into_iter()
+        .enumerate()
+        .map(|(index, tile)| (tile, index))
+        .collect::<HashMap<_, _>>();
     let mut count = 0;
+
     for (i, row) in map.iter().enumerate() {
-        for (j, tile) in row.iter().enumerate() {
-            let cur = Point { x: j, y: i };
-            if !border.contains(&cur) && is_enclosed(&map, &border, cur) {
-                // println!("{} {}", j, i);
-                print!("{}", "@");
-                count += 1;
-            } else {
-                print!("{}", tile);
+        let mut depth = 0;
+        // let mut iter = row.iter().enumerate().peekable();
+        let mut j = 0;
+        while j < row.len() {
+            let cur_point = Point { x: j, y: i };
+
+            if border.contains_key(&cur_point) {
+                let start_skip = j;
+                while let Some(_) = row.get(j + 1) {
+                    let skip_point = Point { x: j, y: i };
+                    let next_point = Point { x: j + 1, y: i };
+
+                    match (border.get(&skip_point), border.get(&next_point)) {
+                        (Some(skip_order), Some(next_order)) => {
+                            if skip_order.abs_diff(*next_order) > 1 {
+                                break;
+                            }
+                        }
+                        _ => break,
+                    }
+                    print!("{}", row[j]);
+                    j += 1;
+                }
+                if !is_turn(row[start_skip], row[j]) {
+                    depth += 1;
+                }
             }
+
+            if depth % 2 == 1 && !border.contains_key(&cur_point) {
+                count += 1;
+            }
+
+            j += 1;
         }
-        print!("\n");
     }
-    // let enclosed = map.iter().enumerate().map(|(i, row)| {
-    //     let i = i;
-    //     row.iter()
-    //         .enumerate()
-    //         .map(|(j, _)| is_enclosed(&map, &border, Point { x: j, y: i }))
-    // });
     count
 }
 
 fn main() {
-    let input = include_str!("tst_input5.txt");
+    let input = include_str!("input.txt");
     println!("Part1: {}\nPart2: {}", part1(&input), part2(&input));
 }
